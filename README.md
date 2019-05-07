@@ -4,3 +4,4 @@ Updates Coming Soon:
 1. Stop enemy shaking
 2. Add graphics for sprites when low on health
 3. Overall bug fixes
+4. Make it look more professional
