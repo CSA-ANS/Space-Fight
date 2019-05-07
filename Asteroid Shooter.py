@@ -838,11 +838,13 @@ def start_game():
             big_explosion.play()
             while (end_screen):
                 for laser in laser_list:
-                    laser_list.remove(laser)
-                    laser.remove(all_sprites_list)
+                    if isinstance(laser, Laser):
+                        laser.remove(all_sprites_list)
+                laser_list=[]
                 for elaser in enemy_laser_list:
-                    enemy_laser_list.remove(elaser)
-                    elaser.remove(all_sprites_list)
+                    if isinstance(elaser, EnemyLaser):
+                        elaser.remove(all_sprites_list)
+                enemy_laser_list=[]
                 screen.fill((0, 0, 0))
                 screen.blit(bgImg, (bg_x, bg_y))
                 screen.blit(bgImg, (bg_x1 - 5, bg_y1 - 5))
@@ -910,7 +912,7 @@ def start_game():
                                 enemyImg_num += 1
                                 if enemyImg_num == 12:
                                     if shoot_speed>=10:
-                                        shoot_speed -= 4
+                                        shoot_speed -= 5
                                     enemy_list[enemy_num].y_change+=1
                                     enemyImg_num = 0
                                 enemy_num += 1
@@ -923,8 +925,9 @@ def start_game():
                                 asteroids=False
                                 just_asteroid=True
                                 for asteroid in asteroid_list:
-                                    asteroid_list.remove(asteroid)
-                                    asteroid.remove(all_sprites_list)
+                                    if isinstance(asteroid, Asteroid):
+                                        asteroid.remove(all_sprites_list)
+                                asteroid_list=[]
                                 enemyImg_num += 1
                                 if enemyImg_num == 12:
                                     if shoot_speed>=10:
@@ -968,13 +971,19 @@ def start_game():
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONUP:# checks if mouse is released
                         if stage!=6:
+                            asteroid_speed=stage+4
                             spaceship.rect.y = window_height / 2
                             if asteroids==False:
                                 enemy_list[enemy_num].rect.y = window_height / 2
                             spaceship.y_change = 0
                             lives = 3
                             enemies = 1
-                            enemy_lives = 3
+                            if stage==1 or stage==2:
+                                enemy_lives = 3
+                            elif stage==3 or stage==4:
+                                enemy_lives=4
+                            elif stage==4 or stage==5:
+                                enemy_lives=5
                             enemyImgadd = True
                             damage=True
                             start_game()
