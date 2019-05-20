@@ -12,17 +12,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #####
 Ammaar Siddiqui
 Asteroids
-Version .1
+Version .2
 This game is Galaga played horizontally.
 You have a spaceship and have to go through enemy spaceships and asteroid fields.
 There are 6 stages. Each stage consists of 8 levels. 6 enemies and 2 asteroid fields.
-There is also a shop where you can buy shields, bombs, speed, and multi-lasers.
-It is porgrammed in Python's Pygame.
-The aim of the game is to finish all 6 stages.
-Updates Coming Soon:
-1. Stop enemy shaking
-2. Add graphics for sprites when low on health
-3. Overall bug fixes
+There is also a shop where you can buy lives, bombs, speed, and multi-lasers.
+It is programmed in Python's Pygame.
+The aim of the game is to finish all 6 stages and lose the least amount of lives.
 '''
 
 # Ammaar Siddiqui
@@ -36,6 +32,14 @@ import sys
 
 pygame.init()
 
+global lives_lost
+lives_lost=0
+
+global just_shoot
+just_shoot=False
+
+global allow_shoot
+allow_shoot=0
 
 global just_asteroid
 just_asteroid=False
@@ -79,8 +83,6 @@ score_display = False
 global laser_count
 laser_count = 0
 
-# pygame.mixer.music.set_volume(0.5)#sets the background music volume
-# pygame.mixer.music.play(-1, 0.0)
 global entity_color
 entity_color = (255, 255, 255)
 global WHITE
@@ -149,16 +151,13 @@ global enemyImgadd
 enemyImgadd = True
 
 global shields
-shields=0
+shields=3
 
 global bombs
 bombs=0
 
 global multilasers
 multilasers=0
-
-global damage
-damage=True
 
 global stage
 stage=1
@@ -214,7 +213,10 @@ next_button = pygame.image.load("next_button.png")
 
 
 pygame.mixer.music.load("DarkKnight.mp3")
+pygame.mixer.music.set_volume(0.5)#sets the background music volume
+pygame.mixer.music.play(-1, 0.0)
 
+lose_noise=pygame.mixer.Sound("SHUTDOWN.wav")
 explosion_noise = pygame.mixer.Sound("explosion.wav")
 big_explosion = pygame.mixer.Sound("big_explosion.wav")
 asteroid_explosion = pygame.mixer.Sound("export.wav")
@@ -265,9 +267,8 @@ class Player(Spaceship):
     def MoveKeyDown(self, key):
         global multilasers
         global bombs
-        global shields
         global enemy_laser_list
-        global damage
+        global just_shoot
         """Responds to a key-down event and moves accordingly"""
         if (key == pygame.K_UP):
             self.y_change += -self.y_dist
@@ -275,18 +276,18 @@ class Player(Spaceship):
             self.y_change += self.y_dist
         elif (key == pygame.K_SPACE):
             laser_noise.play()
-            if stage==1:
+            if stage==1 and just_shoot==False:
                 x = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2, 44, 5)
                 all_sprites_list.add(x)
                 laser_list.append(x)
-            elif stage==2:
+            elif stage==2 and just_shoot==False:
                 x = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2 - 5, 44, 5)
                 all_sprites_list.add(x)
                 laser_list.append(x)
                 y = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2 + 5, 44, 5)
                 all_sprites_list.add(y)
                 laser_list.append(y)
-            elif stage==3:
+            elif stage==3 and just_shoot==False:
                 x = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2 - 7, 44, 5)
                 all_sprites_list.add(x)
                 laser_list.append(x)
@@ -296,7 +297,7 @@ class Player(Spaceship):
                 z = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2 + 7, 44, 5)
                 all_sprites_list.add(z)
                 laser_list.append(z)
-            elif stage == 4:
+            elif stage == 4 and just_shoot==False:
                 x = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2 - 15, 44, 5)
                 all_sprites_list.add(x)
                 laser_list.append(x)
@@ -306,7 +307,7 @@ class Player(Spaceship):
                 z = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2 + 15, 44, 5)
                 all_sprites_list.add(z)
                 laser_list.append(z)
-            elif stage==5:
+            elif stage==5 and just_shoot==False:
                 x = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2 + 5, 44, 5)
                 all_sprites_list.add(x)
                 laser_list.append(x)
@@ -316,22 +317,17 @@ class Player(Spaceship):
                 z = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2 - 5, 44, 5)
                 all_sprites_list.add(z)
                 laser_list.append(z)
-            elif stage==6:
+            elif stage==6 and just_shoot==False:
                 v = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2-25, 44, 5)
                 all_sprites_list.add(v)
                 laser_list.append(v)
-                w = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2-30, 44, 5)
-                all_sprites_list.add(w)
-                laser_list.append(w)
                 x = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2, 44, 5)
                 all_sprites_list.add(x)
                 laser_list.append(x)
                 y = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2+25, 44, 5)
                 all_sprites_list.add(y)
                 laser_list.append(y)
-                z = Laser(spaceship.rect.x + 70, spaceship.rect.y + spaceship.rect.height/2+30, 44, 5)
-                all_sprites_list.add(z)
-                laser_list.append(z)
+            just_shoot=True
         elif (key == pygame.K_z):  # Pressing Z creates a shotgun blast of lasers
             if multilasers > 0:
                 w = Laser(spaceship.rect.x + 90, spaceship.rect.y + 7, 44, 5)
@@ -351,15 +347,23 @@ class Player(Spaceship):
                 laser_list.append(v)
                 multilasers -= 1
         elif (key==pygame.K_x):
+            global asteroid_list
+            global enemy_laser_list
+            global score
             if bombs > 0:
-                for e_laser in enemy_laser_list:
-                    enemy_laser_list.remove(e_laser)
-                    e_laser.remove(all_sprites_list)
+                explosion_noise.play()
+                if asteroids==False:
+                    for elaser in enemy_laser_list:
+                        if isinstance(elaser, EnemyLaser):
+                            elaser.remove(all_sprites_list)
+                    enemy_laser_list = []
+                elif asteroids:
+                    score+=len(asteroid_list)*2
+                    for asteroid in asteroid_list:
+                        if isinstance(asteroid, Asteroid):
+                            asteroid.remove(all_sprites_list)
+                    asteroid_list = []
                 bombs-=1
-        elif (key==pygame.K_c):
-            if shields>0:
-                damage=False
-                shields-=1
 
     def MoveKeyUp(self, key):
         global POINTS1
@@ -394,9 +398,9 @@ class Enemy(Spaceship):
 
     def update(self):
         global window_height
-        if spaceship.rect.y + spaceship.rect.height / 2 < self.rect.y + self.rect.height / 2:
+        if spaceship.rect.y + spaceship.rect.height / 2 < (self.rect.y + self.rect.height / 2)-10:
             self.rect.y -= self.y_change
-        elif spaceship.rect.y + spaceship.rect.height / 2 > self.rect.y + self.rect.height / 2:
+        elif spaceship.rect.y + spaceship.rect.height / 2 > (self.rect.y + self.rect.height / 2)+10:
             self.rect.y += self.y_change
         if self.rect.y + self.rect.height > window_height - 5:
             self.rect.y = window_height - self.rect.height - 5
@@ -488,14 +492,13 @@ def astship_collide(asts):  # checks if any asteroids have hit the ship
 
 def lasship_collide(lasers):
     global lives
-    if damage:
-        for laser in lasers:
-            if laser.rect.colliderect(spaceship.rect):
-                if laser in lasers:
-                    lasers.remove(laser)
-                laser.remove(all_sprites_list)
-                lives -= 1
-                explosion_noise.play()
+    for laser in lasers:
+        if laser.rect.colliderect(spaceship.rect):
+            if laser in lasers:
+                lasers.remove(laser)
+            laser.remove(all_sprites_list)
+            lives -= 1
+            explosion_noise.play()
 
 
 def lasenemy_collide(lasers):
@@ -545,6 +548,54 @@ def update_e_lives():  # function changes the amount of bonuses
     text = font.render(("ENEMY LIVES: " + str(enemy_lives)), True, (WHITE))
     return text
 
+def end_game_screen():
+    global lives_lost
+    font4 = pygame.font.SysFont("arialblack", 35)
+    file = open("highscores.txt", "r")
+    scores = file.readlines()
+    file.close()
+    scores = [SCORE.replace('\n', '') for SCORE in scores]#gets scores
+    if lives_lost < int(scores[9]):
+        for SCORE in scores:
+            if score <= int(SCORE):
+                scores.insert(scores.index(SCORE), str(score))
+                break
+        #del scores[-1]
+    while True:
+        screen.fill((0, 0, 0))
+        game_finish2 = font4.render("Click to Exit", True, (WHITE))
+        lowest_lives=font4.render("LOWEST TOTAL LIVES LOST", True, (WHITE))
+        score1=font4.render("1. " + str(scores[0]), True, (WHITE))
+        score2=font4.render("2. " + str(scores[1]), True, (WHITE))
+        score3=font4.render("3. " + str(scores[2]), True, (WHITE))
+        score4=font4.render("4. " + str(scores[3]), True, (WHITE))
+        score5=font4.render("5. " + str(scores[4]), True, (WHITE))
+        score6=font4.render("6. " + str(scores[5]), True, (WHITE))
+        score7=font4.render("7. " + str(scores[6]), True, (WHITE))
+        score8=font4.render("8. " + str(scores[7]), True, (WHITE))
+        score9=font4.render("9. " + str(scores[8]), True, (WHITE))
+        score10=font4.render("10. " + str(scores[9]), True, (WHITE))
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type==pygame.MOUSEBUTTONUP:
+                pygame.quit()
+                sys.exit()
+        screen.blit(lowest_lives, (0, 0))
+        screen.blit(score1, (0, 50))
+        screen.blit(score2, (0, 100))
+        screen.blit(score3, (0, 150))
+        screen.blit(score4, (0, 200))
+        screen.blit(score5, (0, 250))
+        screen.blit(score6, (0, 300))
+        screen.blit(score7, (0, 350))
+        screen.blit(score8, (0, 400))
+        screen.blit(score9, (0, 450))
+        screen.blit(score10, (0, 500))
+        screen.blit(game_finish2, (0, 550))
+        pygame.display.flip()
+
 
 
 spaceship1 = Player(15, window_height/2, 106, 113)
@@ -583,14 +634,13 @@ start_screen):  # start screen, runs until they click, displays controls and run
     screen.fill((0, 0, 0))
     screen.blit(bgImg, (0, 0))
     font1 = pygame.font.SysFont("arialblack", 75)
-    title = font1.render("Asteroids", True, (WHITE))
+    title = font1.render("Space Fight", True, (WHITE))
     font2 = pygame.font.SysFont("arialblack", 27)
     control1 = font2.render("INSTRUCTIONS:", True, (WHITE))
     control2 = font2.render("ARROW KEYS -- MOVE UP & DOWN", True, (WHITE))
     control3 = font2.render("SPACEBAR -- SHOOT NORMAL LASER", True, (WHITE))
     control4 = font2.render("Z -- SHOOT MULTI-LASER", True, (WHITE))
     instruction1 = font2.render("X -- USE BOMB(CLEAR SCREEN)", True, (WHITE))
-    instruction2 = font2.render("C -- ACTIVATE SHIELD", True, (WHITE))
     click_start = font2.render("CLICK TO START", True, (WHITE))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -599,13 +649,12 @@ start_screen):  # start screen, runs until they click, displays controls and run
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
                 start_screen = False
-    screen.blit(title, (275, 25))
+    screen.blit(title, (200, 25))
     screen.blit(control1, (275, 150))
     screen.blit(control2, (275, 200))
     screen.blit(control3, (275, 250))
     screen.blit(control4, (275, 300))
     screen.blit(instruction1, (275, 350))
-    screen.blit(instruction2, (275, 400))
     screen.blit(click_start, (275, 550))
     pygame.display.flip()
 
@@ -661,9 +710,11 @@ def start_game():
     global shields
     global multilasers
     global bombs
-    global damage
     global asteroids
     global just_asteroid
+    global allow_shoot
+    global just_shoot
+    global lives_lost
     ##-------------------------------------------------------------------------##
     ##-------------------------------------------------------------------------##
     ##WHILE TRUE LOOOOOOP
@@ -671,6 +722,9 @@ def start_game():
     ##-------------------------------------------------------------------------##
 
     while True:
+        allow_shoot+=1
+        if allow_shoot%15==0:
+            just_shoot=False
         lasast_collide(asteroid_list, laser_list)
         astship_collide(asteroid_list)
         lasbonus_collide(bonus_list, laser_list)
@@ -825,17 +879,25 @@ def start_game():
                 asteroid_list.remove(asteroid)
 
         if enemy_lives == 1 and enemyImgadd:
-            enemyImg_num += 1
-            enemy_list[enemy_num].image = enemyImg_list[enemyImg_num]
-            enemyImgadd = False
+            if enemyImg_num!=11:
+                enemyImg_num += 1
+                enemy_list[enemy_num].image = enemyImg_list[enemyImg_num]
+                enemyImgadd = False
+            else:
+                enemyImg_num=2
         if enemy_lives <= 0:
             enemies -=1
         if lives <= 0 or enemies == 0:# if they die it displays highscores from a text file and waits for a click to restart
+            if enemies==0:
+                enemy_list[enemy_num].remove(all_sprites_list)
+                big_explosion.play()
+            if lives<=0:
+                lives_lost+=1
+                lose_noise.play()
             stage_added=False
             end_screen = True
             next_screen = False
             mouseClicked = False
-            big_explosion.play()
             while (end_screen):
                 for laser in laser_list:
                     if isinstance(laser, Laser):
@@ -848,16 +910,18 @@ def start_game():
                 screen.fill((0, 0, 0))
                 screen.blit(bgImg, (bg_x, bg_y))
                 screen.blit(bgImg, (bg_x1 - 5, bg_y1 - 5))
-                font4 = pygame.font.SysFont("arialblack", 35)
+                font4 = pygame.font.SysFont("arialblack", 28)
                 font5 = pygame.font.SysFont("arialblack", 28)
-                speed_upgrade = font4.render("Upgrade Speed:100 POINTS", True, (WHITE))
+                speed_upgrade = font4.render("Upgrade Speed:2000 POINTS", True, (WHITE))
                 current_speed = font4.render(("Current Speed: "+str(speed)), True, (WHITE))
-                buy_shields = font4.render("Buy Shield:75 POINTS", True, (WHITE))
-                current_shields = font4.render(("Current Shields: "+str(shields)), True, (WHITE))
-                buy_bombs = font4.render("Buy Bombs:100 POINTS", True, (WHITE))
+                buy_shields = font4.render("Buy Lives:1500 POINTS", True, (WHITE))
+                current_shields = font4.render(("Current Lives: "+str(shields)), True, (WHITE))
+                buy_bombs = font4.render("Buy Bombs:300 POINTS", True, (WHITE))
                 current_bombs = font4.render(("Current Bombs: "+str(bombs)), True, (WHITE))
-                buy_multi_lasers = font4.render("Buy Multi-Lasers:25 POINTS", True, (WHITE))
+                bomb_instruction = font4.render("Press X to use", True, (WHITE))
+                buy_multi_lasers = font4.render("Buy Multi-Lasers:300 POINTS", True, (WHITE))
                 current_multi_lasers = font4.render(("Current Multi-Lasers: "+str(multilasers)), True, (WHITE))
+                multi_laser_instruction = font4.render("Press Z to use", True, (WHITE))
                 current_points = font5.render("POINTS: "+str(score), True, (WHITE))
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -868,48 +932,52 @@ def start_game():
                         mouseClicked = True
 
                 screen.blit(speed_upgrade, (0, 0))
-                screen.blit(speed_symbol, (550, 10))
+                screen.blit(speed_symbol, (450, 10))
                 screen.blit(current_speed, (0, 35))
-                screen.blit(buy_shields, (0, 145))
-                screen.blit(shield_symbol, (550, 155))
-                screen.blit(current_shields, (0, 180))
-                screen.blit(buy_bombs, (0, 330))
-                screen.blit(bomb_symbol, (550, 340))
-                screen.blit(current_bombs, (0, 365))
-                screen.blit(buy_multi_lasers, (0, 515))
-                screen.blit(speed_up, (550, 525))
-                screen.blit(current_multi_lasers, (0, 550))
+                screen.blit(buy_shields, (0, 125))
+                screen.blit(shield_symbol, (450, 155))
+                screen.blit(current_shields, (0, 160))
+                screen.blit(buy_bombs, (0, 310))
+                screen.blit(bomb_symbol, (450, 340))
+                screen.blit(current_bombs, (0, 345))
+                screen.blit(bomb_instruction, (0, 380))
+                screen.blit(buy_multi_lasers, (0, 495))
+                screen.blit(speed_up, (450, 525))
+                screen.blit(current_multi_lasers, (0, 530))
+                screen.blit(multi_laser_instruction, (0, 565))
                 screen.blit(current_points, (635, 10))
                 screen.blit(next_button, (750, 500))
                 if mouseClicked:
-                    if mousex>575 and mousex<647 and mousey>10 and mousey<82:
-                        if score>=100:
+                    if mousex>450 and mousex<522 and mousey>10 and mousey<82:
+                        if score>=2000:
+                            spaceship.y_dist=speed+1
                             speed+=1
-                            score-=100
+                            score-=2000
                         mouseClicked=False
-                    elif mousex>575 and mousex<662 and mousey>155 and mousey<242:
-                        if score>=75:
+                    elif mousex>450 and mousex<537 and mousey>155 and mousey<242:
+                        if score>=1500:
                             shields+=1
-                            score-=75
+                            score-=1500
                         mouseClicked=False
-                    elif mousex>575 and mousex<675 and mousey>340 and mousey<421:
-                        if score>=100:
+                    elif mousex>450 and mousex<540 and mousey>340 and mousey<430:
+                        if score>=300:
                             bombs+=1
-                            score-=100
+                            score-=300
                         mouseClicked=False
-                    elif mousex>575 and mousex<656 and mousey>525 and mousey<573:
-                        if score>=25:
+                    elif mousex>450 and mousex<531 and mousey>525 and mousey<573:
+                        if score>=300:
                             multilasers+=1
-                            score-=25
+                            score-=300
                         mouseClicked=False
                     if (math.sqrt((mousex-795)**2+(mousey-545)**2))<45:
                         just_asteroid=False
                         if enemies == 0:
                             if enemy_num==1 or enemy_num==3:
                                 asteroids=True
-                            enemy_list[enemy_num].remove(all_sprites_list)
                             if asteroids==False:
                                 enemyImg_num += 1
+                                if enemyImg_num%2==1:
+                                    enemyImg_num+=1
                                 if enemyImg_num == 12:
                                     if shoot_speed>=10:
                                         shoot_speed -= 5
@@ -938,8 +1006,9 @@ def start_game():
                                     enemy_num = 0
                                 all_sprites_list.add(enemy_list[enemy_num])
                                 enemy_list[enemy_num].image = enemyImg_list[enemyImg_num]
-                            if enemy_lives == 1:
+                            if enemyImg_num%2 == 1:
                                 enemyImg_num -= 1
+                                enemy_list[enemy_num].image = enemyImg_list[enemyImg_num]
                         end_screen=False
                         next_screen=True
                 pygame.display.flip()
@@ -949,7 +1018,7 @@ def start_game():
                 screen.blit(bgImg, (bg_x1 - 5, bg_y1 - 5))
                 font4 = pygame.font.SysFont("arialblack", 35)
                 game_finish=font4.render("You Finished The Game!!", True, (WHITE))
-                game_finish2=font4.render("Click To Exit", True, (WHITE))
+                game_finish2=font4.render("Click To Restart", True, (WHITE))
                 click_continue=font4.render("Click to Continue", True, (WHITE))
                 if stage!=6:
                     next_stage1=font4.render("Congrats on finishing the stage!", True, (WHITE))
@@ -960,6 +1029,8 @@ def start_game():
                     pass_fail = font4.render("You finished the level!", True, (WHITE))
                     if asteroids:
                         level_descrip = font4.render("The next level is an asteroid field.", True, (WHITE))
+                        level_descrip2 = font4.render("Shoot asteroids to get as many points", True, (WHITE))
+                        level_descrip3 = font4.render("as possible until you die", True, (WHITE))
                     else:
                         level_descrip = font4.render("The next level is a harder enemy.", True, (WHITE))
                 elif lives <=0:
@@ -970,22 +1041,16 @@ def start_game():
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONUP:# checks if mouse is released
-                        if stage!=6:
+                        if stage!=7:
                             asteroid_speed=stage+4
                             spaceship.rect.y = window_height / 2
                             if asteroids==False:
                                 enemy_list[enemy_num].rect.y = window_height / 2
                             spaceship.y_change = 0
-                            lives = 3
+                            lives = shields
                             enemies = 1
-                            if stage==1 or stage==2:
-                                enemy_lives = 3
-                            elif stage==3 or stage==4:
-                                enemy_lives=4
-                            elif stage==4 or stage==5:
-                                enemy_lives=5
+                            enemy_lives=stage+4
                             enemyImgadd = True
-                            damage=True
                             start_game()
                         else:
                             pygame.quit()
@@ -1006,12 +1071,14 @@ def start_game():
                     screen.blit(next_stage3, (0,200))
                     screen.blit(click_continue, (0, 300))
                 elif enemy_num==0 and enemies==0 and stage==6:
-                    screen.blit(game_finish, (0,0))
-                    screen.blit(game_finish2, (0, 100))
+                    end_game_screen()
                 else:
                     screen.blit(pass_fail, (0, 0))
                     screen.blit(level_descrip, (0, 100))
-                    screen.blit(click_continue, (0, 200))
+                    if asteroids:
+                        screen.blit(level_descrip2, (0, 200))
+                        screen.blit(level_descrip3, (0, 240))
+                    screen.blit(click_continue, (0, 400))
                 pygame.display.flip()
 
         screen.fill((0, 0, 0))
