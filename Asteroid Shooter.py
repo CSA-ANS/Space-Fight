@@ -1037,7 +1037,7 @@ def init_game():
     enemies = 1
 
     global shoot_speed
-    shoot_speed = 45
+    shoot_speed = 40
 
     global enemy_list
     enemy_list = []
