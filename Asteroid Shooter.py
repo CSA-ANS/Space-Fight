@@ -12,7 +12,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #####
 Ammaar Siddiqui
 Asteroids
-Version .2
+Version 1
 This game is Galaga played horizontally.
 You have a spaceship and have to go through enemy spaceships and asteroid fields.
 There are 5 stages. Each stage consists of 8 levels. 6 enemies and 2 asteroid fields.
