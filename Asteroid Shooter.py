@@ -141,19 +141,19 @@ class Player(Spaceship):
             just_shoot=True
         elif (key == pygame.K_z):  # Pressing Z creates a shotgun blast of lasers
             if multilasers > 0:
-                w = Laser(spaceship.rect.x + 90, spaceship.rect.y + 7, 44, 5)
+                w = Laser(spaceship.rect.x + 90, spaceship.rect.y + (spaceship.rect.height/2)-20, 44, 5)
                 all_sprites_list.add(w)
                 laser_list.append(w)
-                x = Laser(spaceship.rect.x + 100, spaceship.rect.y + 17, 44, 5)
+                x = Laser(spaceship.rect.x + 100, spaceship.rect.y + (spaceship.rect.height/2)-10, 44, 5)
                 all_sprites_list.add(x)
                 laser_list.append(x)
-                y = Laser(spaceship.rect.x + 110, spaceship.rect.y + 27, 44, 5)
+                y = Laser(spaceship.rect.x + 110, spaceship.rect.y + spaceship.rect.height/2, 44, 5)
                 all_sprites_list.add(y)
                 laser_list.append(y)
-                z = Laser(spaceship.rect.x + 100, spaceship.rect.y + 37, 44, 5)
+                z = Laser(spaceship.rect.x + 100, spaceship.rect.y + (spaceship.rect.height/2)+10, 44, 5)
                 all_sprites_list.add(z)
                 laser_list.append(z)
-                v = Laser(spaceship.rect.x + 90, spaceship.rect.y + 47, 44, 5)
+                v = Laser(spaceship.rect.x + 90, spaceship.rect.y + (spaceship.rect.height/2)+20, 44, 5)
                 all_sprites_list.add(v)
                 laser_list.append(v)
                 multilasers -= 1
@@ -369,7 +369,7 @@ def end_game_screen():
     file.close()
     scores = [SCORE.replace('\n', '') for SCORE in scores]#gets scores
     scores = [SCORE.split("|") for SCORE in scores]
-    if stage > int(scores[9][0]) or (stage==scores[9][0] and current_level>scores[9][1]):
+    if stage > int(scores[9][0]) or (stage==int(scores[9][0]) and current_level>int(scores[9][1])):
         for SCORE in scores:
             if stage == int(SCORE[0]):
                 if current_level>int(SCORE[1]):
@@ -408,7 +408,8 @@ def end_game_screen():
                 #pygame.quit()
                 #os.execv(sys.executable, ['python'] + sys.argv)
                 #os.system("Asteroid Shooter.py")
-                return
+                raise Exception("Restart")
+                
         
         screen.blit(lowest_lives, (0, 0))
         screen.blit(score1, (0, 50))
@@ -433,6 +434,45 @@ def end_game_screen():
 
 
 def start_game():
+    global all_sprites_list
+    global asteroid_explosion
+    global asteroidImg
+    global bg_size, bg_rect
+    global bgImg
+    global big_explosion
+    global bomb_symbol
+    global clock
+    global enemy_laser_noise
+    global enemy1Img
+    global enemy2Img
+    global enemy3Img
+    global enemy4Img
+    global enemy5Img
+    global enemy6Img
+    global enemydmg1Img
+    global enemydmg2Img
+    global enemydmg3Img
+    global enemydmg4Img
+    global enemydmg5Img
+    global enemydmg6Img
+    global enemylaserImg
+    global explosion_noise
+    global laser_noise
+    global laserImg
+    global lose_noise
+    global next_button
+    global screen
+    global shield_symbol
+    global spaceship1Img
+    global spaceship2Img
+    global spaceship3Img
+    global spaceship4Img
+    global spaceship5Img
+    global spaceship6Img
+    global speed_symbol
+    global speed_up
+    global speed_upImg
+    global stage_added
     global total_lives
     global spaceship
     global spaceship_list
@@ -460,10 +500,7 @@ def start_game():
     global window_height
     global bonus_count
     global wall_count
-    global screen
-    global clock
     global shop_screen
-    global level_screen
     global start_screen
     global speed
     global enemy_lives
@@ -899,9 +936,9 @@ def start_game():
 
 def init_game():
     pygame.init()
-
+    
     global total_lives
-    total_lives=1
+    total_lives=5
 
     global current_level
     current_level=1
@@ -959,21 +996,25 @@ def init_game():
 
     global entity_color
     entity_color = (255, 255, 255)
+    
     global WHITE
     WHITE = (255, 255, 255)
 
     global POINTS1
     POINTS1 = 0
+    
     global POINTS2
     POINTS2 = 0
 
     global window_width
     window_width = 900
+    
     global window_height
     window_height = 600
 
     global bonus_count
     bonus_count = 0  # counts time so the bonuses and walls come at intervals
+    
     global wall_count
     wall_count = 0
 
@@ -996,7 +1037,7 @@ def init_game():
     enemies = 1
 
     global shoot_speed
-    shoot_speed = 40
+    shoot_speed = 45
 
     global enemy_list
     enemy_list = []
@@ -1009,12 +1050,15 @@ def init_game():
 
     global bgImg
     bgImg = pygame.image.load("space_background2.jpg")  # loads all files
+    
     global bg_size, bg_rect
     bg_size = bgImg.get_size()
     bg_rect = bgImg.get_rect()
+    
     global bg_w
     global bg_h
     bg_w, bg_h = bg_size
+    
     global bg_x
     bg_x = 0
     global bg_y
@@ -1023,6 +1067,7 @@ def init_game():
     bg_x1 = -bg_w
     global bg_y1
     bg_y1 = 0
+    
     global enemyImgadd
     enemyImgadd = True
 
@@ -1040,8 +1085,6 @@ def init_game():
 
     global asteroids
     asteroids=False
-
-    shooterImg = pygame.image.load("spaceship.png")
 
     global enemy1Img
     global enemy2Img
@@ -1097,19 +1140,25 @@ def init_game():
                      enemy5Img, enemydmg5Img, enemy6Img, enemydmg6Img]
 
 
-    global asteroidImg, laserImg, enemylaserImg, bomb_symbol,shield_symbol,shield_symbol,speed_up,next_button
-    global enemy_laser_noise, laser_noise, explosion_noise
+    global asteroidImg
     asteroidImg = pygame.image.load("Asteroid.png")
     global speed_upImg
     speed_upImg = pygame.image.load("speed_up.png")
 
+    global laserImg
     laserImg = pygame.image.load("laser.png")
+    global enemylaserImg
     enemylaserImg = pygame.image.load("enemylaser.gif")
 
+    global bomb_symbol
     bomb_symbol = pygame.image.load("bomb_symbol2.png")
+    global shield_symbol
     shield_symbol = pygame.image.load("shield_symbol.png")
-    shield_symbol = pygame.image.load("speed_symbol.png")
+    global speed_symbol
+    speed_symbol = pygame.image.load("speed_symbol.png")
+    global speed_up
     speed_up = pygame.image.load("speed_up.png")
+    global next_button
     next_button = pygame.image.load("next_button.png")
 
 
@@ -1117,13 +1166,18 @@ def init_game():
     pygame.mixer.music.set_volume(0.5)#sets the background music volume
     pygame.mixer.music.play(-1, 0.0)
 
-    global lose_noise, big_explosion, asteroid_explosion
+    global lose_noise
     lose_noise=pygame.mixer.Sound("SHUTDOWN.wav")
     lose_noise.set_volume(5)
+    global explosion_noise
     explosion_noise = pygame.mixer.Sound("explosion.wav")
+    global big_explosion
     big_explosion = pygame.mixer.Sound("big_explosion.wav")
+    global asteroid_explosion
     asteroid_explosion = pygame.mixer.Sound("export.wav")
+    global laser_noise
     laser_noise = pygame.mixer.Sound("pew_pew.wav")
+    global enemy_laser_noise
     enemy_laser_noise = pygame.mixer.Sound("enemy_laser_sound.wav")
 
     spaceship1 = Player(15, window_height/2, 106, 113)
@@ -1136,7 +1190,10 @@ def init_game():
     global spaceship
     spaceship=spaceship1
 
+    global spaceship_list
     spaceship_list=[spaceship1, spaceship2, spaceship3, spaceship4, spaceship5, spaceship6]
+
+    
     enemy1 = Enemy(770, window_height / 2, 120, 96)
     enemy2 = Enemy(735, window_height / 2, 155, 68)
     enemy3 = Enemy(755, window_height / 2, 123, 82)
@@ -1198,10 +1255,14 @@ def init_game():
         screen.blit(click_start, (150, 555))
         pygame.display.flip()
 
-global screen
-global clock
-
     
 while True:
     init_game()
-    start_game()
+    try:
+        start_game()
+    except Exception as ex:
+        if "Restart" == str(ex):
+            continue
+        else:
+            raise
+        
