@@ -15,10 +15,10 @@ Asteroids
 Version .2
 This game is Galaga played horizontally.
 You have a spaceship and have to go through enemy spaceships and asteroid fields.
-There are 6 stages. Each stage consists of 8 levels. 6 enemies and 2 asteroid fields.
+There are 5 stages. Each stage consists of 8 levels. 6 enemies and 2 asteroid fields.
 There is also a shop where you can buy lives, bombs, speed, and multi-lasers.
 It is programmed in Python's Pygame.
-The aim of the game is to finish all 6 stages and lose the least amount of lives.
+The aim of the game is to finish as many stages as possible with 5 deaths.
 '''
 
 # Ammaar Siddiqui
@@ -29,199 +29,10 @@ import pygame
 import random
 import math
 import sys
-
-pygame.init()
-
-global lives_lost
-lives_lost=0
-
-global just_shoot
-just_shoot=False
-
-global allow_shoot
-allow_shoot=0
-
-global just_asteroid
-just_asteroid=False
-
-global stage_added
-stage_added=False
-
-global background
-background = (0, 0, 0)
-
-global lives
-lives = 3
-
-global score
-score = 0
-
-global asteroid_limit
-asteroid_limit = 5
-
-global laser_list
-laser_list = []  # list for all flying objects
-
-global enemy_laser_list
-enemy_laser_list = []
-
-global asteroid_list
-asteroid_list = []
-
-global bonus_list
-bonus_list = []
-
-global asteroid_speed
-asteroid_speed = 5
-
-global extra_lasers
-extra_lasers = 0
-
-global score_display
-score_display = False
-
-global laser_count
-laser_count = 0
-
-global entity_color
-entity_color = (255, 255, 255)
-global WHITE
-WHITE = (255, 255, 255)
-
-global POINTS1
-POINTS1 = 0
-global POINTS2
-POINTS2 = 0
-
-global window_width
-window_width = 900
-global window_height
-window_height = 600
-
-global bonus_count
-bonus_count = 0  # counts time so the bonuses and walls come at intervals
-global wall_count
-wall_count = 0
-
-global shop_screen
-shop_screen = False
-
-global start_screen
-start_screen = False
-
-global speed
-speed = 6
-
-global enemy_lives
-enemy_lives = 3
-
-global level
-level = 1
-
-global enemies
-enemies = 1
-
-global shoot_speed
-shoot_speed = 45
-
-global enemy_list
-enemy_list = []
-
-global enemy_num
-enemy_num = 0
-
-global enemyImg_num
-enemyImg_num = 0
-
-bgImg = pygame.image.load("space_background2.jpg")  # loads all files
-bg_size = bgImg.get_size()
-bg_rect = bgImg.get_rect()
-global bg_w
-global bg_h
-bg_w, bg_h = bg_size
-global bg_x
-bg_x = 0
-global bg_y
-bg_y = 0
-global bg_x1
-bg_x1 = -bg_w
-global bg_y1
-bg_y1 = 0
-global enemyImgadd
-enemyImgadd = True
-
-global shields
-shields=3
-
-global bombs
-bombs=0
-
-global multilasers
-multilasers=0
-
-global stage
-stage=1
-
-global asteroids
-asteroids=False
-
-shooterImg = pygame.image.load("spaceship.png")
-enemy1Img = pygame.image.load("Enemy 1.png")
-enemy2Img = pygame.image.load("Enemy 2.png")
-enemy3Img = pygame.image.load("Enemy 3.png")
-enemy4Img = pygame.image.load("Enemy 4.png")
-enemy5Img = pygame.image.load("Enemy 5.png")
-enemy6Img = pygame.image.load("Enemy 6.png")
-enemydmg1Img = pygame.image.load("EnemyDmg 1.png")
-enemydmg2Img = pygame.image.load("EnemyDmg 2.png")
-enemydmg3Img = pygame.image.load("EnemyDmg 3.png")
-enemydmg4Img = pygame.image.load("EnemyDmg 4.png")
-enemydmg5Img = pygame.image.load("EnemyDmg 5.png")
-enemydmg6Img = pygame.image.load("EnemyDmg 6.png")
-
-spaceship1Img=pygame.image.load("spaceship1.png")
-spaceship2Img=pygame.image.load("spaceship2.png")
-spaceship3Img=pygame.image.load("spaceship3.png")
-spaceship4Img=pygame.image.load("spaceship4.png")
-spaceship5Img=pygame.image.load("spaceship5.png")
-spaceship6Img=pygame.image.load("spaceship6.png")
-
-global spaceshipImg_num
-spaceshipImg_num=0
-
-global spaceship_num
-spaceship_num=0
-
-global spaceshipImg_list
-spaceshipImg_list = [spaceship1Img, spaceship2Img, spaceship3Img, spaceship4Img, spaceship5Img, spaceship6Img]
-
-global enemyImg_list
-enemyImg_list = [enemy1Img, enemydmg1Img, enemy2Img, enemydmg2Img, enemy3Img, enemydmg3Img, enemy4Img, enemydmg4Img,
-                 enemy5Img, enemydmg5Img, enemy6Img, enemydmg6Img]
-
-asteroidImg = pygame.image.load("Asteroid.png")
-speed_upImg = pygame.image.load("speed_up.png")
-
-laserImg = pygame.image.load("laser.png")
-enemylaserImg = pygame.image.load("enemylaser.gif")
-
-bomb_symbol = pygame.image.load("bomb_symbol2.png")
-shield_symbol = pygame.image.load("shield_symbol.png")
-speed_symbol = pygame.image.load("speed_symbol.png")
-speed_up = pygame.image.load("speed_up.png")
-next_button = pygame.image.load("next_button.png")
+import subprocess
+import os
 
 
-pygame.mixer.music.load("DarkKnight.mp3")
-pygame.mixer.music.set_volume(0.5)#sets the background music volume
-pygame.mixer.music.play(-1, 0.0)
-
-lose_noise=pygame.mixer.Sound("SHUTDOWN.wav")
-explosion_noise = pygame.mixer.Sound("explosion.wav")
-big_explosion = pygame.mixer.Sound("big_explosion.wav")
-asteroid_explosion = pygame.mixer.Sound("export.wav")
-laser_noise = pygame.mixer.Sound("pew_pew.wav")
-enemy_laser_noise = pygame.mixer.Sound("enemy_laser_sound.wav")
 
 
 class Entity(pygame.sprite.Sprite):
@@ -272,7 +83,7 @@ class Player(Spaceship):
         """Responds to a key-down event and moves accordingly"""
         if (key == pygame.K_UP):
             self.y_change += -self.y_dist
-        elif (key == pygame.K_DOWN):
+        elif (key == pygame.K_DOWN ):
             self.y_change += self.y_dist
         elif (key == pygame.K_SPACE):
             laser_noise.play()
@@ -372,7 +183,7 @@ class Player(Spaceship):
         """Responds to a key-up event and stops movement accordingly"""
         if (key == pygame.K_UP):
             self.y_change += self.y_dist
-        elif (key == pygame.K_DOWN):
+        elif (key == pygame.K_DOWN ):
             self.y_change += -self.y_dist
 
     def update(self):
@@ -550,38 +361,55 @@ def update_e_lives():  # function changes the amount of bonuses
 
 def end_game_screen():
     global lives_lost
+    global stage
+    global current_level
     font4 = pygame.font.SysFont("arialblack", 35)
     file = open("highscores.txt", "r")
     scores = file.readlines()
     file.close()
     scores = [SCORE.replace('\n', '') for SCORE in scores]#gets scores
-    if lives_lost < int(scores[9]):
+    scores = [SCORE.split("|") for SCORE in scores]
+    if stage > int(scores[9][0]) or (stage==scores[9][0] and current_level>scores[9][1]):
         for SCORE in scores:
-            if score <= int(SCORE):
-                scores.insert(scores.index(SCORE), str(score))
+            if stage == int(SCORE[0]):
+                if current_level>int(SCORE[1]):
+                    scores.insert(scores.index(SCORE), [str(stage), str(current_level)])
+                    break
+            elif stage>int(SCORE[0]):
+                scores.insert(scores.index(SCORE), [str(stage), str(current_level)])
                 break
-        #del scores[-1]
+        del scores[-1]
+    file2=open("highscores.txt", "w")
+    for SCORE in scores:
+        file2.write(str(SCORE[0])+"|"+str(SCORE[1])+"\n")
+    file2.close()
     while True:
         screen.fill((0, 0, 0))
-        game_finish2 = font4.render("Click to Exit", True, (WHITE))
-        lowest_lives=font4.render("LOWEST TOTAL LIVES LOST", True, (WHITE))
-        score1=font4.render("1. " + str(scores[0]), True, (WHITE))
-        score2=font4.render("2. " + str(scores[1]), True, (WHITE))
-        score3=font4.render("3. " + str(scores[2]), True, (WHITE))
-        score4=font4.render("4. " + str(scores[3]), True, (WHITE))
-        score5=font4.render("5. " + str(scores[4]), True, (WHITE))
-        score6=font4.render("6. " + str(scores[5]), True, (WHITE))
-        score7=font4.render("7. " + str(scores[6]), True, (WHITE))
-        score8=font4.render("8. " + str(scores[7]), True, (WHITE))
-        score9=font4.render("9. " + str(scores[8]), True, (WHITE))
-        score10=font4.render("10. " + str(scores[9]), True, (WHITE))
+        game_finish2 = font4.render("Click to Restart", True, (WHITE))
+        lowest_lives=font4.render("HIGHSCORES", True, (WHITE))
+        score1=font4.render("1. Stage " + str(scores[0][0]) + ", Level " + str(scores[0][1]), True, (WHITE))
+        score2=font4.render("2. Stage " + str(scores[1][0]) + ", Level " + str(scores[1][1]), True, (WHITE))
+        score3=font4.render("3. Stage " + str(scores[2][0]) + ", Level " + str(scores[2][1]), True, (WHITE))
+        score4=font4.render("4. Stage " + str(scores[3][0]) + ", Level " + str(scores[3][1]), True, (WHITE))
+        score5=font4.render("5. Stage " + str(scores[4][0]) + ", Level " + str(scores[4][1]), True, (WHITE))
+        score6=font4.render("6. Stage " + str(scores[5][0]) + ", Level " + str(scores[5][1]), True, (WHITE))
+        score7=font4.render("7. Stage " + str(scores[6][0]) + ", Level " + str(scores[6][1]), True, (WHITE))
+        score8=font4.render("8. Stage " + str(scores[7][0]) + ", Level " + str(scores[7][1]), True, (WHITE))
+        score9=font4.render("9. Stage " + str(scores[8][0]) + ", Level " + str(scores[8][1]), True, (WHITE))
+        score10=font4.render("10. Stage " + str(scores[9][0]) + ", Level " + str(scores[9][1]), True, (WHITE))
+        score11=font4.render("Your Level Reached: ", True, (WHITE))
+        score12=font4.render("Stage "+str(stage), True, (WHITE))
+        score13=font4.render("Level "+str(current_level), True, (WHITE))
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             elif event.type==pygame.MOUSEBUTTONUP:
-                pygame.quit()
-                sys.exit()
+                #pygame.quit()
+                #os.execv(sys.executable, ['python'] + sys.argv)
+                #os.system("Asteroid Shooter.py")
+                return
+        
         screen.blit(lowest_lives, (0, 0))
         screen.blit(score1, (0, 50))
         screen.blit(score2, (0, 100))
@@ -593,73 +421,19 @@ def end_game_screen():
         screen.blit(score8, (0, 400))
         screen.blit(score9, (0, 450))
         screen.blit(score10, (0, 500))
+        screen.blit(score11, (500, 100))
+        screen.blit(score12, (500, 140))
+        screen.blit(score13, (500, 180))
         screen.blit(game_finish2, (0, 550))
         pygame.display.flip()
 
 
 
-spaceship1 = Player(15, window_height/2, 106, 113)
-spaceship2 = Player(15, window_height/2, 122, 92)
-spaceship3 = Player(15, window_height/2, 99, 124)
-spaceship4 = Player(15, window_height/2, 98, 127)
-spaceship5 = Player(15, window_height/2, 111, 90)
-spaceship6 = Player(15, window_height/2, 118, 85)
-spaceship=spaceship1
 
-spaceship_list=[spaceship1, spaceship2, spaceship3, spaceship4, spaceship5, spaceship6]
-enemy1 = Enemy(770, window_height / 2, 120, 96)
-enemy2 = Enemy(735, window_height / 2, 155, 68)
-enemy3 = Enemy(755, window_height / 2, 123, 82)
-enemy4 = Enemy(755, window_height / 2, 123, 86)
-enemy5 = Enemy(785, window_height / 2, 94, 129)
-enemy6 = Enemy(785, window_height / 2, 91, 170)
-enemy_list = [enemy1, enemy2, enemy3, enemy4, enemy5, enemy6]
-
-global screen
-screen = pygame.display.set_mode((window_width, window_height))
-
-pygame.display.set_caption("Asteroids")
-
-global clock
-clock = pygame.time.Clock()
-
-all_sprites_list = pygame.sprite.Group()
-all_sprites_list.add(spaceship)
-all_sprites_list.add(enemy1)
-
-start_screen = True
-
-while (
-start_screen):  # start screen, runs until they click, displays controls and runs pygame event loop to check for click
-    screen.fill((0, 0, 0))
-    screen.blit(bgImg, (0, 0))
-    font1 = pygame.font.SysFont("arialblack", 75)
-    title = font1.render("Space Fight", True, (WHITE))
-    font2 = pygame.font.SysFont("arialblack", 27)
-    control1 = font2.render("INSTRUCTIONS:", True, (WHITE))
-    control2 = font2.render("ARROW KEYS -- MOVE UP & DOWN", True, (WHITE))
-    control3 = font2.render("SPACEBAR -- SHOOT NORMAL LASER", True, (WHITE))
-    control4 = font2.render("Z -- SHOOT MULTI-LASER", True, (WHITE))
-    instruction1 = font2.render("X -- USE BOMB(CLEAR SCREEN)", True, (WHITE))
-    click_start = font2.render("CLICK TO START", True, (WHITE))
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 1:
-                start_screen = False
-    screen.blit(title, (200, 25))
-    screen.blit(control1, (275, 150))
-    screen.blit(control2, (275, 200))
-    screen.blit(control3, (275, 250))
-    screen.blit(control4, (275, 300))
-    screen.blit(instruction1, (275, 350))
-    screen.blit(click_start, (275, 550))
-    pygame.display.flip()
 
 
 def start_game():
+    global total_lives
     global spaceship
     global spaceship_list
     global spaceship_num
@@ -715,6 +489,7 @@ def start_game():
     global allow_shoot
     global just_shoot
     global lives_lost
+    global current_level
     ##-------------------------------------------------------------------------##
     ##-------------------------------------------------------------------------##
     ##WHILE TRUE LOOOOOOP
@@ -888,6 +663,15 @@ def start_game():
         if enemy_lives <= 0:
             enemies -=1
         if lives <= 0 or enemies == 0:# if they die it displays highscores from a text file and waits for a click to restart
+            if enemies==0 or (lives<=0 and asteroids==True):
+                current_level+=1
+            if current_level==9:
+                current_level=1
+            if lives<=0 and asteroids==False:
+                total_lives-=1
+            if total_lives<=0:
+                end_game_screen()
+                return
             if enemies==0:
                 enemy_list[enemy_num].remove(all_sprites_list)
                 big_explosion.play()
@@ -923,6 +707,7 @@ def start_game():
                 current_multi_lasers = font4.render(("Current Multi-Lasers: "+str(multilasers)), True, (WHITE))
                 multi_laser_instruction = font4.render("Press Z to use", True, (WHITE))
                 current_points = font5.render("POINTS: "+str(score), True, (WHITE))
+                deaths = font5.render("DEATHS LEFT: "+str(total_lives), True, (WHITE))
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
@@ -945,7 +730,8 @@ def start_game():
                 screen.blit(speed_up, (450, 525))
                 screen.blit(current_multi_lasers, (0, 530))
                 screen.blit(multi_laser_instruction, (0, 565))
-                screen.blit(current_points, (635, 10))
+                screen.blit(current_points, (600, 10))
+                screen.blit(deaths, (600, 40))
                 screen.blit(next_button, (750, 500))
                 if mouseClicked:
                     if mousex>450 and mousex<522 and mousey>10 and mousey<82:
@@ -1065,19 +851,24 @@ def start_game():
                         spaceship=spaceship_list[spaceship_num]
                         spaceship.image=spaceshipImg_list[spaceshipImg_num]
                         all_sprites_list.add(spaceship)
+                        next_level=font4.render("Next Level: Stage "+str(stage)+", Level "+str(current_level), True, (WHITE))
                     screen.blit(next_stage1, (0,0))
                     screen.blit(next_stage2, (0,100))
                     screen.blit(next_stage4, (0,140))
                     screen.blit(next_stage3, (0,200))
-                    screen.blit(click_continue, (0, 300))
+                    screen.blit(next_level, (0, 300))
+                    screen.blit(click_continue, (0, 400))
                 elif enemy_num==0 and enemies==0 and stage==6:
                     end_game_screen()
+                    return
                 else:
+                    next_level=font4.render("Next Level: Stage "+str(stage)+", Level "+str(current_level), True, (WHITE))
                     screen.blit(pass_fail, (0, 0))
                     screen.blit(level_descrip, (0, 100))
                     if asteroids:
-                        screen.blit(level_descrip2, (0, 200))
-                        screen.blit(level_descrip3, (0, 240))
+                        screen.blit(level_descrip2, (0, 150))
+                        screen.blit(level_descrip3, (0, 190))
+                    screen.blit(next_level, (0, 300))
                     screen.blit(click_continue, (0, 400))
                 pygame.display.flip()
 
@@ -1106,5 +897,311 @@ def start_game():
 
         clock.tick(60)
 
+def init_game():
+    pygame.init()
 
-start_game()
+    global total_lives
+    total_lives=1
+
+    global current_level
+    current_level=1
+
+    global lives_lost
+    lives_lost=0
+
+    global just_shoot
+    just_shoot=False
+
+    global allow_shoot
+    allow_shoot=0
+
+    global just_asteroid
+    just_asteroid=False
+
+    global stage_added
+    stage_added=False
+
+    global background
+    background = (0, 0, 0)
+
+    global lives
+    lives = 3
+
+    global score
+    score = 0
+
+    global asteroid_limit
+    asteroid_limit = 5
+
+    global laser_list
+    laser_list = []  # list for all flying objects
+
+    global enemy_laser_list
+    enemy_laser_list = []
+
+    global asteroid_list
+    asteroid_list = []
+
+    global bonus_list
+    bonus_list = []
+
+    global asteroid_speed
+    asteroid_speed = 5
+
+    global extra_lasers
+    extra_lasers = 0
+
+    global score_display
+    score_display = False
+
+    global laser_count
+    laser_count = 0
+
+    global entity_color
+    entity_color = (255, 255, 255)
+    global WHITE
+    WHITE = (255, 255, 255)
+
+    global POINTS1
+    POINTS1 = 0
+    global POINTS2
+    POINTS2 = 0
+
+    global window_width
+    window_width = 900
+    global window_height
+    window_height = 600
+
+    global bonus_count
+    bonus_count = 0  # counts time so the bonuses and walls come at intervals
+    global wall_count
+    wall_count = 0
+
+    global shop_screen
+    shop_screen = False
+
+    global start_screen
+    start_screen = False
+
+    global speed
+    speed = 6
+
+    global enemy_lives
+    enemy_lives = 3
+
+    global level
+    level = 1
+
+    global enemies
+    enemies = 1
+
+    global shoot_speed
+    shoot_speed = 40
+
+    global enemy_list
+    enemy_list = []
+
+    global enemy_num
+    enemy_num = 0
+
+    global enemyImg_num
+    enemyImg_num = 0
+
+    global bgImg
+    bgImg = pygame.image.load("space_background2.jpg")  # loads all files
+    global bg_size, bg_rect
+    bg_size = bgImg.get_size()
+    bg_rect = bgImg.get_rect()
+    global bg_w
+    global bg_h
+    bg_w, bg_h = bg_size
+    global bg_x
+    bg_x = 0
+    global bg_y
+    bg_y = 0
+    global bg_x1
+    bg_x1 = -bg_w
+    global bg_y1
+    bg_y1 = 0
+    global enemyImgadd
+    enemyImgadd = True
+
+    global shields
+    shields=3
+
+    global bombs
+    bombs=0
+
+    global multilasers
+    multilasers=0
+
+    global stage
+    stage=1
+
+    global asteroids
+    asteroids=False
+
+    shooterImg = pygame.image.load("spaceship.png")
+
+    global enemy1Img
+    global enemy2Img
+    global enemy3Img
+    global enemy4Img
+    global enemy5Img
+    global enemy6Img
+    enemy1Img = pygame.image.load("Enemy 1.png")
+    enemy2Img = pygame.image.load("Enemy 2.png")
+    enemy3Img = pygame.image.load("Enemy 3.png")
+    enemy4Img = pygame.image.load("Enemy 4.png")
+    enemy5Img = pygame.image.load("Enemy 5.png")
+    enemy6Img = pygame.image.load("Enemy 6.png")
+    global enemydmg1Img
+    global enemydmg2Img
+    global enemydmg3Img
+    global enemydmg4Img
+    global enemydmg5Img
+    global enemydmg6Img
+    
+    enemydmg1Img = pygame.image.load("EnemyDmg 1.png")
+    enemydmg2Img = pygame.image.load("EnemyDmg 2.png")
+    enemydmg3Img = pygame.image.load("EnemyDmg 3.png")
+    enemydmg4Img = pygame.image.load("EnemyDmg 4.png")
+    enemydmg5Img = pygame.image.load("EnemyDmg 5.png")
+    enemydmg6Img = pygame.image.load("EnemyDmg 6.png")
+
+    global spaceship1Img
+    global spaceship2Img
+    global spaceship3Img
+    global spaceship4Img
+    global spaceship5Img
+    global spaceship6Img
+    
+    spaceship1Img=pygame.image.load("spaceship1.png")
+    spaceship2Img=pygame.image.load("spaceship2.png")
+    spaceship3Img=pygame.image.load("spaceship3.png")
+    spaceship4Img=pygame.image.load("spaceship4.png")
+    spaceship5Img=pygame.image.load("spaceship5.png")
+    spaceship6Img=pygame.image.load("spaceship6.png")
+
+    global spaceshipImg_num
+    spaceshipImg_num=0
+
+    global spaceship_num
+    spaceship_num=0
+
+    global spaceshipImg_list
+    spaceshipImg_list = [spaceship1Img, spaceship2Img, spaceship3Img, spaceship4Img, spaceship5Img, spaceship6Img]
+
+    global enemyImg_list
+    enemyImg_list = [enemy1Img, enemydmg1Img, enemy2Img, enemydmg2Img, enemy3Img, enemydmg3Img, enemy4Img, enemydmg4Img,
+                     enemy5Img, enemydmg5Img, enemy6Img, enemydmg6Img]
+
+
+    global asteroidImg, laserImg, enemylaserImg, bomb_symbol,shield_symbol,shield_symbol,speed_up,next_button
+    global enemy_laser_noise, laser_noise, explosion_noise
+    asteroidImg = pygame.image.load("Asteroid.png")
+    global speed_upImg
+    speed_upImg = pygame.image.load("speed_up.png")
+
+    laserImg = pygame.image.load("laser.png")
+    enemylaserImg = pygame.image.load("enemylaser.gif")
+
+    bomb_symbol = pygame.image.load("bomb_symbol2.png")
+    shield_symbol = pygame.image.load("shield_symbol.png")
+    shield_symbol = pygame.image.load("speed_symbol.png")
+    speed_up = pygame.image.load("speed_up.png")
+    next_button = pygame.image.load("next_button.png")
+
+
+    pygame.mixer.music.load("DarkKnight.mp3")
+    pygame.mixer.music.set_volume(0.5)#sets the background music volume
+    pygame.mixer.music.play(-1, 0.0)
+
+    global lose_noise, big_explosion, asteroid_explosion
+    lose_noise=pygame.mixer.Sound("SHUTDOWN.wav")
+    lose_noise.set_volume(5)
+    explosion_noise = pygame.mixer.Sound("explosion.wav")
+    big_explosion = pygame.mixer.Sound("big_explosion.wav")
+    asteroid_explosion = pygame.mixer.Sound("export.wav")
+    laser_noise = pygame.mixer.Sound("pew_pew.wav")
+    enemy_laser_noise = pygame.mixer.Sound("enemy_laser_sound.wav")
+
+    spaceship1 = Player(15, window_height/2, 106, 113)
+    spaceship2 = Player(15, window_height/2, 122, 92)
+    spaceship3 = Player(15, window_height/2, 99, 124)
+    spaceship4 = Player(15, window_height/2, 98, 127)
+    spaceship5 = Player(15, window_height/2, 111, 90)
+    spaceship6 = Player(15, window_height/2, 118, 85)
+
+    global spaceship
+    spaceship=spaceship1
+
+    spaceship_list=[spaceship1, spaceship2, spaceship3, spaceship4, spaceship5, spaceship6]
+    enemy1 = Enemy(770, window_height / 2, 120, 96)
+    enemy2 = Enemy(735, window_height / 2, 155, 68)
+    enemy3 = Enemy(755, window_height / 2, 123, 82)
+    enemy4 = Enemy(755, window_height / 2, 123, 86)
+    enemy5 = Enemy(785, window_height / 2, 94, 129)
+    enemy6 = Enemy(785, window_height / 2, 91, 170)
+
+    
+    enemy_list = [enemy1, enemy2, enemy3, enemy4, enemy5, enemy6]
+
+    global screen
+    screen = pygame.display.set_mode((window_width, window_height))
+
+    pygame.display.set_caption("Asteroids")
+
+    global clock
+    clock = pygame.time.Clock()
+
+    global all_sprites_list
+    all_sprites_list = pygame.sprite.Group()
+    all_sprites_list.add(spaceship)
+    all_sprites_list.add(enemy1)
+
+    start_screen = True
+
+    while (start_screen):  # start screen, runs until they click, displays controls and runs pygame event loop to check for click
+        screen.fill((0, 0, 0))
+        screen.blit(bgImg, (0, 0))
+        font1 = pygame.font.SysFont("arialblack", 75)
+        title = font1.render("Space Fight", True, (WHITE))
+        font2 = pygame.font.SysFont("arialblack", 27)
+        objective1 = font2.render("OBJECTIVE: ", True, (WHITE))
+        objective2 = font2.render("There are 5 stages", True, (WHITE))
+        objective3 = font2.render("Each stage has 6 enemies and 2 asteroid fields", True, (WHITE))
+        objective4 = font2.render("Get as far as you can with 5 lives", True, (WHITE))
+        control1 = font2.render("INSTRUCTIONS:", True, (WHITE))
+        control2 = font2.render("ARROW KEYS -- MOVE UP & DOWN", True, (WHITE))
+        control3 = font2.render("SPACEBAR -- SHOOT NORMAL LASER", True, (WHITE))
+        control4 = font2.render("Z -- SHOOT MULTI-LASER", True, (WHITE))
+        instruction1 = font2.render("X -- USE BOMB(CLEAR SCREEN)", True, (WHITE))
+        click_start = font2.render("CLICK TO START", True, (WHITE))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    start_screen = False
+        screen.blit(title, (200, 25))
+        screen.blit(objective1, (150, 150))
+        screen.blit(objective2, (150, 195))
+        screen.blit(objective3, (150, 240))
+        screen.blit(objective4, (150, 285))
+        screen.blit(control1, (150, 330))
+        screen.blit(control2, (150, 375))
+        screen.blit(control3, (150, 420))
+        screen.blit(control4, (150, 465))
+        screen.blit(instruction1, (150, 510))
+        screen.blit(click_start, (150, 555))
+        pygame.display.flip()
+
+global screen
+global clock
+
+    
+while True:
+    init_game()
+    start_game()
